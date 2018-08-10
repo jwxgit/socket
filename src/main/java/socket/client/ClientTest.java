@@ -12,15 +12,15 @@ import java.util.UUID;
 public class ClientTest {
     public static void main(String args[]) {
         TcpClient client = new TcpClientImpl();
-        client.connect("192.168.199.69",8888);
-        while(true) {
-            try {
-                client.getTransceiver().send(mockMessage());
-                Thread.sleep(2000);
-            }catch (Exception e) {
-
-            }
-        }
+        client.connect("192.168.199.110",10000);
+//        while(true) {
+//            try {
+//                client.getTransceiver().send(mockMessage());
+//                Thread.sleep(2000);
+//            }catch (Exception e) {
+//
+//            }
+//        }
     }
 
 

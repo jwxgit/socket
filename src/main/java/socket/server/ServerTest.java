@@ -18,20 +18,30 @@ public class ServerTest {
         tcp.start();
         while(true) {
             try {
-                System.out.println("控制台输入字符串开始,输入1发送消息");
+                System.out.println("控制台输入字符串开始,输入msgType发送对应消息");
+                System.out.println("1.SERVER_PUSH_IMAGE     2.SERVER_COMPLETE      3.SERVER_DO_SIGNATURE");
+                System.out.println("4.SERVER_SIGNATURE_CANCEL     5.SERVER_SIGNATURE_START");
+
                 Scanner input =new Scanner(System.in);
                 String instr = input.nextLine();
-                if(instr.equals(MessageType.SERVER_PUSH_IMAGE)) {
-                    tcp.getTransceiver().send(mockSERVER_PUSH_IMAGE());
-                } else if(instr.equals(MessageType.SERVER_COMPLETE)){
-                    tcp.getTransceiver().send(mockSERVER_COMPLETE());
-                }else if(instr.equals(MessageType.SERVER_DO_SIGNATURE)){
-                    tcp.getTransceiver().send(mockSERVER_SIGNATURE_START());
-                }else if(instr.equals(MessageType.SERVER_SIGNATURE_CANCEL)){
-                    tcp.getTransceiver().send(mockSERVER_SIGNATURE_CANCEL());
-                }else if(instr.equals(MessageType.SERVER_SIGNATURE_START)){
-                    tcp.getTransceiver().send(mockSERVER_SIGNATURE_START());
+                if(tcp.getTransceiver() == null) {
+                    System.out.println("当前无客户端连接......");
+                    continue;
                 }
+                SocketMessage message = null;
+                if(instr.equals("1")) {
+                    message = mockSERVER_PUSH_IMAGE();
+                } else if(instr.equals("2")){
+                    message = mockSERVER_COMPLETE();
+                }else if(instr.equals("3")){
+                    message = mockSERVER_DO_SIGNATURE();
+                }else if(instr.equals("4")){
+                    message = mockSERVER_SIGNATURE_CANCEL();
+                }else if(instr.equals("5")){
+                    message = mockSERVER_SIGNATURE_START();
+                }
+                System.out.println("当前发送消息：" + JSON.toJSONString(message));
+                tcp.getTransceiver().send(message);
             }catch (Exception e) {
                 e.printStackTrace();
             }
@@ -89,8 +99,8 @@ public class ServerTest {
                 "      }\n" +
                 "    ],\n" +
                 "    \"heathQuestion\": [\n" +
-                "      \"JFADFJLJALKSDJF\",\n" +
-                "      \"JFADFJLJALKSDJF\"\n" +
+                "      \"01-kajiemiao_1\",\n" +
+                "      \"02-yigan-A5_1\"\n" +
                 "    ],\n" +
                 "    \"signTypes\": [\n" +
                 "      1,\n" +
@@ -100,7 +110,6 @@ public class ServerTest {
                 "  }\n" +
                 "}";
 
-        SocketMessage socketMessage = new SocketMessage();
         SocketMessage message = JSON.parseObject(json, SocketMessage.class);
         message.setData(JSON.toJavaObject((JSONObject)message.getData(),ChildInfo.class));
         return message;
@@ -120,9 +129,10 @@ public class ServerTest {
                 "    \"imgconent\": \"Base64\"\n" +
                 "  }\n" +
                 "}";
-        SocketMessage socketMessage = new SocketMessage();
         SocketMessage message = JSON.parseObject(json, SocketMessage.class);
         message.setData(JSON.toJavaObject((JSONObject)message.getData(), ImageInfo.class));
+        ImageInfo imageInfo = (ImageInfo)message.getData();
+        imageInfo.setImgContent(FileUtils.coverFileToString(new File("assets/01-kajiemiao_1.jpg")));
         return message;
     }
 
@@ -138,7 +148,6 @@ public class ServerTest {
                 "    \"operation\": \"010\"\n" +
                 "  }\n" +
                 "}";
-        SocketMessage socketMessage = new SocketMessage();
         SocketMessage message = JSON.parseObject(json, SocketMessage.class);
         message.setData(JSON.toJavaObject((JSONObject)message.getData(), Command.class));
         return message;
@@ -153,7 +162,6 @@ public class ServerTest {
                 "  \"msgTimestamp\": \"2018-08-02 13:37:36.235\",\n" +
                 "  \"data\":null" +
                 "}";
-        SocketMessage socketMessage = new SocketMessage();
         SocketMessage message = JSON.parseObject(json, SocketMessage.class);
         message.setData(JSON.toJavaObject((JSONObject)message.getData(), Command.class));
         return message;
@@ -171,7 +179,6 @@ public class ServerTest {
                 "    \"complete\": 1\n" +
                 "  }\n" +
                 "}";
-        SocketMessage socketMessage = new SocketMessage();
         SocketMessage message = JSON.parseObject(json, SocketMessage.class);
         message.setData(JSON.toJavaObject((JSONObject)message.getData(), Completion.class));
         return message;
